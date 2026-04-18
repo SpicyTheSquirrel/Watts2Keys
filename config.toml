@@ -24,40 +24,49 @@ dead_band_watts = 3
 #  POWER MAP
 #
 #  Each [[power_map]] block defines one zone.
-#  Zones are matched highest min_watts first — the first zone whose
-#  min_watts is <= your current average power wins.
+#  Zones are matched highest min_watts first.
 #
-#  keys  — list of keys to hold while in this zone.
-#          Single chars:  "w"  "a"  "s"  "d"
-#          Special keys:  "alt"  "alt_l"  "alt_r"
-#                         "ctrl"  "shift"  "space"  "caps_lock"
-#                         "f1" … "f12"  "up" "down" "left" "right"
-#  label — display name shown in the console (cosmetic only)
+#  keys      — held down continuously while in this zone.
+#  tap_keys  — tapped ONCE (press+release) on zone entry only.
+#              Use this for toggle keys like caps_lock so they don't
+#              get stuck — each zone crossing fires exactly one tap.
+#  label     — display name in the console (cosmetic only)
 #
-#  ──  Skyrim defaults  ──
-#  Walk:    just W (with Auto-Run off)
-#  Run:     W (Skyrim runs by default; toggle Caps Lock for walk mode)
-#  Sprint:  W + Alt
+#  Key names:
+#    Letters/numbers:  "w"  "a"  "s"  "d"  "1"
+#    Modifiers:        "alt"  "alt_l"  "alt_r"  "ctrl"  "shift"
+#    Special:          "space"  "enter"  "esc"  "tab"  "caps_lock"
+#    Arrows:           "up"  "down"  "left"  "right"
+#    Function:         "f1" … "f12"
+#
+#  ── Skyrim defaults ──
+#  Walk:    Caps Lock toggles walk mode; W moves forward
+#  Run:     Caps Lock off; W moves forward
+#  Sprint:  W + Alt (held)
 # ─────────────────────────────────────────────────────────────────────────────
 
 [[power_map]]
 min_watts = 0
 keys      = []
+tap_keys  = []
 label     = "Idle"
 
 [[power_map]]
 min_watts = 50
 keys      = ["w"]
+tap_keys  = ["caps_lock"]   # tapped once entering Walk — toggles walk mode ON
 label     = "Walk"
 
 [[power_map]]
 min_watts = 100
 keys      = ["w"]
+tap_keys  = ["caps_lock"]   # tapped once entering Run — toggles walk mode OFF
 label     = "Run"
 
 [[power_map]]
 min_watts = 150
 keys      = ["w", "alt"]
+tap_keys  = []
 label     = "Sprint"
 
 
@@ -65,20 +74,16 @@ label     = "Sprint"
 #  EXAMPLES — uncomment or add your own blocks freely.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Very slow movement (like sneaking):
+# Sneak zone (Ctrl = sneak in Skyrim):
 # [[power_map]]
 # min_watts = 30
-# keys      = ["ctrl", "w"]        # Ctrl = sneak in Skyrim
+# keys      = ["ctrl", "w"]
+# tap_keys  = []
 # label     = "Sneak"
 
-# Turbo zone — anything above 200 W:
-# [[power_map]]
-# min_watts = 200
-# keys      = ["w", "alt"]
-# label     = "Turbo Sprint"
-
-# Different game — WASD with shift to run (many games):
+# Different game — Shift to run:
 # [[power_map]]
 # min_watts = 100
 # keys      = ["shift", "w"]
+# tap_keys  = []
 # label     = "Run (Shift)"

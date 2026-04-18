@@ -95,7 +95,8 @@ def load_config(path: str = "config.toml") -> dict:
         cfg = tomllib.load(f)
     # Pre-compile key objects
     for zone in cfg.get("power_map", []):
-        zone["_keys"] = [str_to_key(k) for k in zone.get("keys", [])]
+        zone["_keys"]     = [str_to_key(k) for k in zone.get("keys",     [])]
+        zone["_tap_keys"] = [str_to_key(k) for k in zone.get("tap_keys", [])]
     return cfg
 
 
@@ -140,12 +141,23 @@ class KICKRKeys:
             return
         self._release_all()
         self.current_zone = zone
+
+        # tap_keys: press-and-release once on zone entry (for toggles like caps_lock)
+        for key in zone["_tap_keys"]:
+            keyboard.tap(key)
+
+        # keys: held down until the zone changes
         for key in zone["_keys"]:
             keyboard.press(key)
             self.pressed_keys.add(key)
-        label = zone.get("label", f"{zone['min_watts']}w+")
-        keys  = zone.get("keys", [])
-        print(f"\n  ▶  Zone: {label:<12}  Keys: {keys if keys else '(none)'}")
+
+        label  = zone.get("label",    f"{zone['min_watts']}w+")
+        held   = zone.get("keys",     [])
+        tapped = zone.get("tap_keys", [])
+        parts  = []
+        if held:   parts.append(f"hold={held}")
+        if tapped: parts.append(f"tap={tapped}")
+        print(f"\n  ▶  Zone: {label:<12}  {', '.join(parts) if parts else '(no keys)'}")
 
     # ── BLE callback ───────────────────────────────────────────────────────────
     def _on_power(self, _sender, data: bytearray):
