@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  KICKR Keys — config.toml
+#  Edit this file to change zones, keys, and behavior.
+#  Restart the program after saving changes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[device]
+# Partial name to match — find the exact name by running:  python kickr_keys.py --scan
+# Common names: "KICKR CORE", "KICKR", "WAHOO KICKR"
+name = "KICKR CORE"
+
+# ─────────────────────────────────────────────────────────────────────────────
+[settings]
+
+# How many BLE readings to average before deciding the zone.
+# Higher = smoother but slower to react.  Range: 1–20.
+smoothing_window = 5
+
+# Dead-band in watts — zone won't switch unless avg crosses a threshold
+# boundary by this much.  Helps prevent flickering at zone edges.
+dead_band_watts = 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  POWER MAP
+#
+#  Each [[power_map]] block defines one zone.
+#  Zones are matched highest min_watts first — the first zone whose
+#  min_watts is <= your current average power wins.
+#
+#  keys  — list of keys to hold while in this zone.
+#          Single chars:  "w"  "a"  "s"  "d"
+#          Special keys:  "alt"  "alt_l"  "alt_r"
+#                         "ctrl"  "shift"  "space"  "caps_lock"
+#                         "f1" … "f12"  "up" "down" "left" "right"
+#  label — display name shown in the console (cosmetic only)
+#
+#  ──  Skyrim defaults  ──
+#  Walk:    just W (with Auto-Run off)
+#  Run:     W (Skyrim runs by default; toggle Caps Lock for walk mode)
+#  Sprint:  W + Alt
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[power_map]]
+min_watts = 0
+keys      = []
+label     = "Idle"
+
+[[power_map]]
+min_watts = 50
+keys      = ["w"]
+label     = "Walk"
+
+[[power_map]]
+min_watts = 100
+keys      = ["w"]
+label     = "Run"
+
+[[power_map]]
+min_watts = 150
+keys      = ["w", "alt"]
+label     = "Sprint"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  EXAMPLES — uncomment or add your own blocks freely.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Very slow movement (like sneaking):
+# [[power_map]]
+# min_watts = 30
+# keys      = ["ctrl", "w"]        # Ctrl = sneak in Skyrim
+# label     = "Sneak"
+
+# Turbo zone — anything above 200 W:
+# [[power_map]]
+# min_watts = 200
+# keys      = ["w", "alt"]
+# label     = "Turbo Sprint"
+
+# Different game — WASD with shift to run (many games):
+# [[power_map]]
+# min_watts = 100
+# keys      = ["shift", "w"]
+# label     = "Run (Shift)"
