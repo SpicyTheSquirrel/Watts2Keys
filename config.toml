@@ -1,89 +1,113 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  KICKR Keys — config.toml
-#  Edit this file to change zones, keys, and behavior.
+#  Edit this file to change zones, keys, and resistance behavior.
 #  Restart the program after saving changes.
 # ─────────────────────────────────────────────────────────────────────────────
 
 [device]
 # Partial name to match — find the exact name by running:  python kickr_keys.py --scan
-# Common names: "KICKR CORE", "KICKR", "WAHOO KICKR"
 name = "KICKR CORE"
 
 # ─────────────────────────────────────────────────────────────────────────────
 [settings]
 
-# How many BLE readings to average before deciding the zone.
-# Higher = smoother but slower to react.  Range: 1–20.
+# How many BLE readings to average before deciding zone.  Range: 1–20.
 smoothing_window = 5
 
-# Dead-band in watts — zone won't switch unless avg crosses a threshold
-# boundary by this much.  Helps prevent flickering at zone edges.
+# Dead-band in watts — prevents flickering when hovering at a zone boundary.
 dead_band_watts = 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  RESISTANCE CONTROL
+#
+#  mode = "off"    — No resistance commands sent. Use another app (Wahoo,
+#                    Zwift, etc.) to set resistance manually.
+#
+#  mode = "erg"    — ERG mode. The trainer auto-adjusts resistance to hold
+#                    you at a target wattage. Each zone sets its own target
+#                    via erg_watts in its [[power_map]] block.
+#                    Great for gaming: walk zone locks you at 50 W, run at
+#                    100 W, sprint at 150 W — you have to earn each zone.
+#
+#  mode = "slope"  — Fixed gradient simulation. The trainer feels like riding
+#                    on a constant % grade hill, resistance scales with speed.
+#                    Set slope_percent below. erg_watts in zones is ignored.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[resistance]
+mode = "erg"           # "off" | "erg" | "slope"
+
+# ── Slope mode settings (only used when mode = "slope") ──
+slope_percent  = 2.0   # Grade % — 0 = flat, positive = uphill, negative = downhill
+                       # Typical game feel: 1–3 % for light resistance, 5–8 % for hard
+wind_speed_mps = 0.0   # Simulated headwind in m/s (0 = no wind)
+crr            = 0.004 # Coefficient of rolling resistance (default realistic value)
+cw_kg_m        = 0.51  # Aerodynamic drag coefficient (default realistic value)
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  POWER MAP
 #
-#  Each [[power_map]] block defines one zone.
-#  Zones are matched highest min_watts first.
+#  Each [[power_map]] block defines one zone (matched highest-first).
 #
-#  keys      — held down continuously while in this zone.
-#  tap_keys  — tapped ONCE (press+release) on zone entry only.
-#              Use this for toggle keys like caps_lock so they don't
-#              get stuck — each zone crossing fires exactly one tap.
-#  label     — display name in the console (cosmetic only)
+#  min_watts  — enter this zone when average power ≥ this value
+#  keys       — held down continuously while in this zone
+#  tap_keys   — tapped ONCE on zone entry (use for toggles like caps_lock)
+#  erg_watts  — ERG target wattage for this zone (only used in erg mode)
+#  label      — name shown in console (cosmetic)
 #
 #  Key names:
-#    Letters/numbers:  "w"  "a"  "s"  "d"  "1"
+#    Letters/numbers:  "w"  "a"  "s"  "d"
 #    Modifiers:        "alt"  "alt_l"  "alt_r"  "ctrl"  "shift"
 #    Special:          "space"  "enter"  "esc"  "tab"  "caps_lock"
 #    Arrows:           "up"  "down"  "left"  "right"
 #    Function:         "f1" … "f12"
-#
-#  ── Skyrim defaults ──
-#  Walk:    Caps Lock toggles walk mode; W moves forward
-#  Run:     Caps Lock off; W moves forward
-#  Sprint:  W + Alt (held)
 # ─────────────────────────────────────────────────────────────────────────────
 
 [[power_map]]
 min_watts = 0
 keys      = []
 tap_keys  = []
+erg_watts = 30          # Light floor resistance so trainer isn't completely slack
 label     = "Idle"
 
 [[power_map]]
 min_watts = 50
 keys      = ["w"]
-tap_keys  = ["caps_lock"]   # tapped once entering Walk — toggles walk mode ON
+tap_keys  = ["caps_lock"]   # Toggle walk mode ON when entering this zone
+erg_watts = 50              # ERG holds you at exactly the walk threshold
 label     = "Walk"
 
 [[power_map]]
 min_watts = 100
 keys      = ["w"]
-tap_keys  = ["caps_lock"]   # tapped once entering Run — toggles walk mode OFF
+tap_keys  = ["caps_lock"]   # Toggle walk mode OFF when entering this zone
+erg_watts = 100             # ERG holds you at the run threshold
 label     = "Run"
 
 [[power_map]]
 min_watts = 150
 keys      = ["w", "alt"]
 tap_keys  = []
+erg_watts = 150             # ERG holds you at the sprint threshold
 label     = "Sprint"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  EXAMPLES — uncomment or add your own blocks freely.
+#  EXAMPLES
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Sneak zone (Ctrl = sneak in Skyrim):
+# Sneak zone with ERG floor:
 # [[power_map]]
 # min_watts = 30
 # keys      = ["ctrl", "w"]
 # tap_keys  = []
+# erg_watts = 30
 # label     = "Sneak"
 
-# Different game — Shift to run:
+# Hard sprint above 200 W with higher ERG target:
 # [[power_map]]
-# min_watts = 100
-# keys      = ["shift", "w"]
+# min_watts = 200
+# keys      = ["w", "alt"]
 # tap_keys  = []
-# label     = "Run (Shift)"
+# erg_watts = 200
+# label     = "Turbo Sprint"
